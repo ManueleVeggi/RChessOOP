@@ -296,3 +296,34 @@ Knight <- setRefClass("Knight",
                           return(FALSE)
                         }
                       ))
+
+Queen <- setRefClass("Queen",
+                     fields=list(
+                       color = "character", # w - white, b - black
+                       isQueen = "logical"
+                     ),
+                     methods=list(
+                       initialize = function(newColor) {
+                         # We want to check if the newColor passed as parameter 
+                         # is 'w' or 'b'; If the value is not valid, the 
+                         # execution of the software is stopped
+                         if ((newColor != "w") && (newColor != "b")) {
+                           stop("invalid parameters to the ctor (", newColor, 
+                                " but only 'b' and 'w' are valid)")
+                         } else {
+                           color <<- newColor
+                           isQueen <<- FALSE
+                         }
+                       },
+                       checkTrajectory=function(source, destination, currentColor) {
+                         return(TRUE)},
+                       #  defines the move this piece can do
+                       checkMove=function(source, destination, cb, currentColor) {
+                         if (((abs(destination$row-source$row)<=8) && ((abs(destination$col-source$col))==0 )) || ((abs(destination$col-source$col)==0) && ((abs(destination$row-source$row))<=8 ) ) || ((abs(destination$col-source$col)) == (abs(destination$row-source$row)))) {
+                           # valid move
+                           return(TRUE)
+                         }
+                         # invalid move
+                         return(FALSE)
+                       }
+                     ))
