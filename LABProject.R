@@ -327,3 +327,222 @@ Queen <- setRefClass("Queen",
                          return(FALSE)
                        }
                      ))
+
+#  Chessboard is the heart of this game; It is responsible for the representation
+#  of the chessboard and supervises the game, verifying that the constraints 
+#  and the rules of the game are followed.
+Chessboard <- setRefClass("Chessboard",
+                          fields  = list(
+                            chessboard = "matrix"
+                          ),
+                          methods = list(
+                            initialize = function() {
+                              #  We initialize a 8x8 matrix and we fill it with empty lists.
+                              chessboard <<- matrix(list(NULL), nrow = 8, ncol = 8)
+                              #  Now we want to initialize and set the chessboard to its initial configuration,
+                              #  populating the matrix with Pieces(). In R Matrices have no idea how to store a 
+                              #  ReferenceClass but they know how to store a list() and lists know how to
+                              #  store a ReferenceClass.
+                              #  This means that each cell of the matrix contains an empty list or
+                              #  a list with an object inside and we are going to use the operator [[n]]
+                              #  to access the n-th element of this list (in our case, there is only one element so, always [[1]])
+                              #
+                              #  If empty,      chessboard[y,x][[1]] = NULL
+                              #  If not empty,  chessboard[y,x][[1]] = object of type piece
+                              #
+                              for (col in seq(1,8, by=1)) {
+                                chessboard[2,col] <<- list(Pawn("w"))
+                                chessboard[7,col] <<- list(Pawn("b"))
+                                chessboard[1,4] <<- list(King("w"))
+                                chessboard[8,5] <<- list(King("b"))
+                                chessboard[1,1] <<- list(Rook("w"))
+                                chessboard[1,8] <<- list(Rook("w"))
+                                chessboard[8,1] <<- list(Rook("b"))
+                                chessboard[8,8] <<- list(Rook("b"))
+                                chessboard[1,2] <<- list(Knight("w"))
+                                chessboard[1,7] <<- list(Knight("w"))
+                                chessboard[8,2] <<- list(Knight("b"))
+                                chessboard[8,7] <<- list(Knight("b"))
+                                chessboard[1,3] <<- list(Bishop("w"))
+                                chessboard[1,6] <<- list(Bishop("w"))
+                                chessboard[8,3] <<- list(Bishop("b"))
+                                chessboard[8,6] <<- list(Bishop("b"))
+                                chessboard[1,5] <<- list(Queen("w"))
+                                chessboard[8,4] <<- list(Queen("b"))
+                              }},
+                            exit = function() {
+                              .Internal(.invokeRestart(list(NULL, NULL), NULL))
+                            },
+                            draw = function() {
+                              cat("    ")
+                              for (header in seq(1, 8)) {
+                                cat(header, "   ", sep="")
+                              }
+                              cat("\n")
+                              for (row in seq(1, 8)) {
+                                cat(row, " ", sep="")
+                                for (col in seq(1, 8)) {
+                                  if (is(chessboard[row, col][[1]], "Pawn")) {
+                                    if ((chessboard[row, col][[1]]$color) == "w") {
+                                      cat("| ","p", 
+                                          " ", sep="")
+                                    } 
+                                    else{
+                                      cat("| ", "P", 
+                                          " ", sep="")
+                                    }}
+                                  else if (is(chessboard[row, col][[1]], "King")) {
+                                    if ((chessboard[row, col][[1]]$color) == "w") {
+                                      cat("| ","k", 
+                                          " ", sep="")
+                                    } 
+                                    else{
+                                      cat("| ", "K", 
+                                          " ", sep="")
+                                    }}
+                                  else if (is(chessboard[row, col][[1]], "Rook")) {
+                                    if ((chessboard[row, col][[1]]$color) == "w") {
+                                      cat("| ","r", 
+                                          " ", sep="")
+                                    } 
+                                    else{
+                                      cat("| ", "R", 
+                                          " ", sep="")
+                                    }}
+                                  else if (is(chessboard[row, col][[1]], "Queen")) {
+                                    if ((chessboard[row, col][[1]]$color) == "w") {
+                                      cat("| ","q", 
+                                          " ", sep="")
+                                    } 
+                                    else{
+                                      cat("| ", "Q", 
+                                          " ", sep="")
+                                    }}
+                                  else if (is(chessboard[row, col][[1]], "Bishop")) {
+                                    if ((chessboard[row, col][[1]]$color) == "w") {
+                                      cat("| ","b", 
+                                          " ", sep="")
+                                    } 
+                                    else{
+                                      cat("| ", "B", 
+                                          " ", sep="")
+                                    }}
+                                  else if (is(chessboard[row, col][[1]], "Knight")) {
+                                    if ((chessboard[row, col][[1]]$color) == "w") {
+                                      cat("| ","c", 
+                                          " ", sep="")
+                                    } 
+                                    else{
+                                      cat("| ", "C", 
+                                          " ", sep="")
+                                    }}
+                                  else {
+                                    cat("|   ")
+                                  }
+                                }
+                                cat("|\n  ")
+                                for (col in seq(1, 8)) {
+                                  cat("----")
+                                }
+                                cat("-\n")
+                              }},
+                            
+                            checkOverlapPieces=function(source,destination, currentColor){
+                              cat("11:", source$row)
+                              cat("12:", source$col)
+                              cat("21:", destination$row)
+                              cat("22:", destination$col)
+                              if (((is(chessboard[destination$row, destination$col][[1]],  "Pawn")   == TRUE)  || 
+                                   ((is(chessboard[destination$row, destination$col][[1]], "King")   == TRUE)) || 
+                                   ((is(chessboard[destination$row, destination$col][[1]], "Rook")   == TRUE)) || 
+                                   ((is(chessboard[destination$row, destination$col][[1]], "Knight") == TRUE)) || 
+                                   ((is(chessboard[destination$row, destination$col][[1]], "Queen")  == TRUE)) || 
+                                   ((is(chessboard[destination$row, destination$col][[1]], "Bishop") == TRUE))) &&  
+                                  (chessboard[destination$row, destination$col][[1]]$color == currentColor )) 
+                              {
+                                cat("Overlapping\n")
+                                return(FALSE)
+                              }
+                              return(TRUE)
+                            },
+                            checkMovablePiece=function(source,destination, currentColor){
+                              if (((is(chessboard[source$row, source$col][[1]], "Pawn")    == TRUE)   || 
+                                   ((is(chessboard[source$row, source$col][[1]], "King")   == TRUE))  || 
+                                   ((is(chessboard[source$row, source$col][[1]], "Rook")   == TRUE))  || 
+                                   ((is(chessboard[source$row, source$col][[1]], "Knight") == TRUE))  || 
+                                   ((is(chessboard[source$row, source$col][[1]], "Queen")  == TRUE))  || 
+                                   ((is(chessboard[source$row, source$col][[1]], "Bishop") == TRUE))) &&  
+                                  ((chessboard[source$row, source$col][[1]]$color == currentColor))) {
+                                return(TRUE)
+                              }
+                              cat("Movable\n")
+                              return(FALSE)
+                            },
+                            checkEatablePieces=function(source,destination, currentColor){
+                              # evitare di auto-mangiarmi
+                              if (((is(chessboard[destination$row, destination$col][[1]], "Pawn") ==TRUE) || 
+                                   ((is(chessboard[destination$row, destination$col][[1]], "King") ==TRUE)) || 
+                                   ((is(chessboard[destination$row, destination$col][[1]], "Rook") ==TRUE)) || 
+                                   ((is(chessboard[destination$row, destination$col][[1]], "Knight") ==TRUE)) || 
+                                   ((is(chessboard[destination$row, destination$col][[1]], "Queen") ==TRUE)) || 
+                                   ((is(chessboard[destination$row, destination$col][[1]], "Bishop") ==TRUE))) &&  
+                                  (chessboard[destination$row, destination$col][[1]]$color != currentColor)) 
+                              {
+                                return(TRUE)
+                                cat("Eatable!\n")
+                              }
+                              
+                              return(FALSE)
+                            },
+                            move=function(source,destination,currentColor){
+                              #  firstly, you check if the cell is occupied and where the move is allowed   
+                              if (checkOverlapPieces(source, destination, currentColor)) {cat("/n1 true")}
+                              if (movendum$checkMove(source,destination, cb, currentColor)) {cat("/n2 true")}
+                              if (checkMovablePiece(source,destination, currentColor)) {cat("/n3 true")}
+                              if (movendum$checkTrajectory(source,destination, currentColor, chessboard)) {cat("/n4 true")}
+                              if (((checkOverlapPieces(source, destination, currentColor)) && 
+                                   (movendum$checkMove(source,destination, cb, currentColor)) &&  
+                                   (checkMovablePiece(source,destination, currentColor)) && 
+                                   (movendum$checkTrajectory(source,destination, currentColor, chessboard)))) {
+                                # se il movendum appartiene ad una classe diversa rispetto a quella di destinazione 
+                                cat("1:", source$row)
+                                cat("2:", source$col)
+                                cat("3:", destination$row)
+                                cat("4:", destination$col)
+                                if (checkEatablePieces(source, destination, currentColor)) { 
+                                  cat("checkeatablepieces")
+                                  if (is(chessboard[destination$row, destination$col][[1]], "King")) {
+                                    cat(paste(currentPlayer, "is the winner!\n"))
+                                    cat("Type wow to exit the game")
+                                    txt <- readline("Type: ")
+                                    if (txt == "wow") {
+                                      exit()
+                                    }}
+                                  
+                                  chessboard[destination$row, destination$col] <<- list(NULL) 
+                                  chessboard[destination$row, destination$col] <<- chessboard[source$row, source$col]         
+                                  chessboard[source$row, source$col] <<- list(NULL)
+                                  return(TRUE)}
+                                else if (!(checkEatablePieces(source, destination, currentColor))) {
+                                  chessboard[destination$row, destination$col] <<- chessboard[source$row, source$col]
+                                  chessboard[source$row, source$col] <<- list(NULL)
+                                  return(TRUE)}
+                                else {
+                                  cat("Uncorrect move, try again!\n")
+                                  return(FALSE)}
+                              }
+                            },
+                            switch=function(source,destination, currentColor) {
+                              for (col in seq(1,8, by=1)) {
+                                if ((is(chessboard[1, col][[1]], "Pawn")) && ((chessboard[1, col][[1]])$color == "b")) {
+                                  chessboard[1, col] <<- list(Queen("b"))
+                                  return(TRUE)
+                                }
+                                else if ((is(chessboard[8, col][[1]], "Pawn")) && ((chessboard[1, col][[1]])$color == "w")) {
+                                  chessboard[8, col] <<- list(Queen("w"))
+                                  return(TRUE)
+                                }}
+                              
+                              return(FALSE)
+                            }
+                          ))
