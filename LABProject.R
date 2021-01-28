@@ -20,3 +20,49 @@ Coordinates <- setRefClass("Coordinates",
                                }
                              }
                            ))
+
+Pawn <- setRefClass("Pawn",
+                    fields = list(
+                      color = "character", # w - white, b - black
+                      isPiece = "logical"
+                    ),
+                    methods = list(
+                      initialize = function(newColor) {
+                        #  We want to check if the newColor passed as parameter 
+                        #  is 'w' or 'b'; If the value is not valid, the 
+                        #  execution of the software is stopped
+                        if ((newColor != "w") && (newColor != "b")) {
+                          stop("invalid parameters to the ctor (", newColor, 
+                               " but only 'b' and 'w' are valid)")
+                        } else {
+                          color <<- newColor
+                          isPiece <<- FALSE
+                        }},
+                      checkTrajectory = function(source, destination, currentColor, cb) {
+                        return (TRUE)
+                      },
+                      #  defines the move this piece can do
+                      checkMove = function(source, destination, cb, currentColor) {
+                        if (currentColor == "b") {
+                          if (source$row==7) { 
+                            if (((destination$row-source$row) == -2) && (destination$col == source$col)) {
+                              return(TRUE)
+                            }}
+                          if ((destination$row-source$row) == -1) {
+                            if (abs(destination$col-source$col) <= 1) {
+                              return(TRUE)
+                            } #default move
+                          }}
+                        else if (currentColor == "w") {
+                          if (source$row == 2) { 
+                            if (((destination$row-source$row) == 2 || (destination$col == source$col))) {
+                              return(TRUE)
+                            }}
+                          if ((destination$row-source$row) == 1) {
+                            if (abs(destination$col-source$col) <= 1) {
+                              return(TRUE)
+                            } #default move
+                          }}
+                        return(FALSE)
+                      }
+                    ))
