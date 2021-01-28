@@ -546,3 +546,79 @@ Chessboard <- setRefClass("Chessboard",
                               return(FALSE)
                             }
                           ))
+
+chessboard <- Chessboard()
+turn <- 0
+playerColors <- c("w", "b")
+playerNames <- c("WHITE", "BLACK")
+while (TRUE) {
+  # turn is 0  (0/2) = 0 (0%%2) = 0
+  # turn is 1  (1/2) = 0 (1%%2) = 1
+  # turn is 2  (2/2) = 1 (2%%2) = 0
+  # turn is 3  (3/2) = 1 (3%%2) = 1
+  currentColor <- playerColors[(turn %% 2) + 1]
+  currentPlayer <- playerNames[(turn %% 2) + 1]
+  chessboard$draw()
+  cat("Current turn: ", (turn + 1), "\n", sep="")
+  cat("Player ", currentPlayer, " moves", sep="")
+  pcType <- readline("Which piece would like to move? ")
+  srcCol <- readline("piece col? ")
+  if (srcCol == "q") {
+    break;
+  }
+  srcRow <- readline("piece row? ")
+  if (srcRow == "q") {
+    break;
+  }
+  dstCol <- readline("moves to col? ")
+  if (dstCol == "q") {
+    break;
+  }
+  dstRow <- readline("moves to row? ")
+  if (dstRow == "q") {
+    break;
+  }
+  
+  if (pcType == "q") {
+    break;
+  }
+  if (pcType == "pawn") {
+    movendum <- Piece(as.character(type))}
+  if (pcType == "queen") {
+    type <<- "b"
+    movendum <- Queen(as.character(type))}
+  if (pcType == "knight") {
+    type <<- "b"
+    movendum <- Knight(as.character(type))} 
+  if (pcType == "bishop") {
+    type <<- "b"
+    movendum <- Bishop(as.character(type))} 
+  if (pcType == "king") {
+    type <<- "b"
+    movendum <- King(as.character(type))}
+  if (pcType == "rook") {
+    type <<- "b"
+    movendum <- Rook(as.character(type))}
+  source <- Coordinates(as.integer(srcCol), as.integer(srcRow))
+  destination <- Coordinates(as.integer(dstCol), as.integer(dstRow))
+  if (source$isValid) {
+    if (destination$isValid) {
+      # We want to give the source and destination coordinates to the method
+      # move() of the chessboard class. If the method returns a TRUE 
+      # (so the movement source->destination was legit), then we can 
+      # move to the next turn.
+      if (chessboard$move(source, destination, currentColor)) {
+        turn <- turn + 1
+        cat("Both coordinates are valid\n")
+        if (chessboard$switch(source,destination, currentColor))
+        {cat("Your pawn made it! You have one more Queen now") }
+      }
+    } 
+    else {
+      cat("The destination coordinate is not valid\n")
+    }
+  } else {
+    cat("The source coordinate is not valid\n")
+  }
+  
+}
